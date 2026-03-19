@@ -1,0 +1,44 @@
+# Version control
+.git
+.gitignore
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Environment files
+.env
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Generated training data (not needed for inference)
+data/synthetic_resumes/
+data/real_resumes/
+data/metadata/dataset.csv
+
+# Notebooks (not needed for deployment)
+notebooks/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Render config (not needed for Docker)
+render.yaml
+build.sh
+Procfile
+runtime.txt
+
+# Artifacts
+*.bak
+*.tmp
+*.log

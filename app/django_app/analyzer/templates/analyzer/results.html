@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results — AI Resume Analyzer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0e1a;
+            color: #e1e5ee;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header .meta {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 28px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .card-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #8892a4;
+            margin-bottom: 16px;
+        }
+
+        /* Match Score */
+        .score-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .score-value {
+            font-size: 4rem;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .score-label {
+            color: #8892a4;
+            font-size: 0.9rem;
+        }
+
+        .score-bar-container {
+            width: 100%;
+            max-width: 500px;
+            height: 12px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 6px;
+            margin: 20px auto 0;
+            overflow: hidden;
+        }
+
+        .score-bar {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1.5s ease-out;
+        }
+
+        .score-high { background: linear-gradient(90deg, #34d399, #10b981); }
+        .score-med  { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+        .score-low  { background: linear-gradient(90deg, #f87171, #ef4444); }
+
+        .score-color-high { color: #34d399; }
+        .score-color-med  { color: #fbbf24; }
+        .score-color-low  { color: #f87171; }
+
+        .coverage-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .empty-text {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .empty-text-success {
+            color: #6ee7b7;
+            font-size: 0.9rem;
+        }
+
+        .card-center {
+            text-align: center;
+        }
+
+        .coverage-subtitle {
+            color: #6b7280;
+            font-size: 0.85rem;
+            margin-top: 4px;
+        }
+
+        .back-wrapper {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        /* Role Badge */
+        .role-badges {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 16px;
+        }
+
+        .role-badge {
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .role-target {
+            background: rgba(102,126,234,0.15);
+            color: #667eea;
+            border: 1px solid rgba(102,126,234,0.3);
+        }
+
+        .role-predicted {
+            background: rgba(139,92,246,0.15);
+            color: #a78bfa;
+            border: 1px solid rgba(139,92,246,0.3);
+        }
+
+        /* Skill Tags */
+        .skill-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .skill-tag {
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 500;
+        }
+
+        .skill-match {
+            background: rgba(52,211,153,0.12);
+            color: #6ee7b7;
+            border: 1px solid rgba(52,211,153,0.25);
+        }
+
+        .skill-missing {
+            background: rgba(248,113,113,0.12);
+            color: #fca5a5;
+            border: 1px solid rgba(248,113,113,0.25);
+        }
+
+        .skill-count {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 12px;
+        }
+
+        /* Lists */
+        .insight-list {
+            list-style: none;
+        }
+
+        .insight-list li {
+            padding: 10px 16px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .strength-item {
+            background: rgba(52,211,153,0.06);
+            border-left: 3px solid #34d399;
+            color: #d1fae5;
+        }
+
+        .suggestion-item {
+            background: rgba(251,191,36,0.06);
+            border-left: 3px solid #fbbf24;
+            color: #fef3c7;
+        }
+
+        /* Two Column Layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .two-col { grid-template-columns: 1fr; }
+            .score-value { font-size: 3rem; }
+        }
+
+        /* Back Button */
+        .back-btn {
+            display: inline-block;
+            padding: 10px 24px;
+            background: rgba(255,255,255,0.06);
+            color: #c5cae0;
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 10px;
+            text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Analysis Results</h1>
+            <p class="meta">
+                Resume: <strong>{{ filename }}</strong>
+                &nbsp;|&nbsp;
+                Target: <strong>{{ result.job_role }}</strong>
+            </p>
+        </div>
+
+        <!-- Match Score Card -->
+        <div class="card">
+            <div class="score-section">
+                <div class="score-value {% if result.match_score >= 70 %}score-color-high{% elif result.match_score >= 40 %}score-color-med{% else %}score-color-low{% endif %}">
+                    {{ result.match_score }}%
+                </div>
+                <div class="score-label">Semantic Match Score (BERT Cosine Similarity)</div>
+
+                <div class="score-bar-container">
+                    <div class="score-bar {% if result.match_score >= 70 %}score-high{% elif result.match_score >= 40 %}score-med{% else %}score-low{% endif %}"
+                         id="score-bar" data-width="{{ result.match_score }}"></div>
+                </div>
+
+                <div class="role-badges">
+                    <span class="role-badge role-target">Target: {{ result.job_role }}</span>
+                    <span class="role-badge role-predicted">
+                        Predicted: {{ result.predicted_role }} ({{ result.predicted_confidence }}%)
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Skills: Matching & Missing -->
+        <div class="two-col">
+            <div class="card">
+                <div class="card-title">Matching Skills</div>
+                <p class="skill-count">{{ result.matching_skills|length }} skills match the job requirements</p>
+                <div class="skill-grid">
+                    {% for skill in result.matching_skills %}
+                    <span class="skill-tag skill-match">{{ skill }}</span>
+                    {% empty %}
+                    <span class="empty-text">No matching skills detected</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Missing Skills</div>
+                <p class="skill-count">{{ result.missing_skills|length }} skills to develop</p>
+                <div class="skill-grid">
+                    {% for skill in result.missing_skills %}
+                    <span class="skill-tag skill-missing">{{ skill }}</span>
+                    {% empty %}
+                    <span class="empty-text-success">No gaps — you cover all required skills!</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Strengths -->
+        <div class="card">
+            <div class="card-title">Resume Strengths</div>
+            <ul class="insight-list">
+                {% for strength in result.resume_strengths %}
+                <li class="strength-item">{{ strength }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Improvement Suggestions -->
+        <div class="card">
+            <div class="card-title">Improvement Suggestions</div>
+            <ul class="insight-list">
+                {% for suggestion in result.improvement_suggestions %}
+                <li class="suggestion-item">{{ suggestion }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- Skill Match Percentage -->
+        <div class="card card-center">
+            <div class="card-title">Skill Coverage</div>
+            <div class="coverage-value {% if result.skill_match_percentage >= 70 %}score-color-high{% elif result.skill_match_percentage >= 40 %}score-color-med{% else %}score-color-low{% endif %}">
+                {{ result.skill_match_percentage }}%
+            </div>
+            <p class="coverage-subtitle">
+                of required JD skills are present in your resume
+            </p>
+        </div>
+
+        <!-- Back Button -->
+        <div class="back-wrapper">
+            <a href="{% url 'analyzer:home' %}" class="back-btn">Analyze Another Resume</a>
+        </div>
+    </div>
+</body>
+<script>
+    var bar = document.getElementById('score-bar');
+    if (bar) bar.style.width = bar.dataset.width + '%';
+</script>
+</html>

@@ -1,0 +1,32 @@
+# AI Resume Analyzer - Dependencies
+# ===================================
+
+# Deep Learning Framework
+torch>=2.0.0
+torchvision>=0.15.0
+
+# NLP / Transformers
+transformers>=4.30.0
+
+# PDF Processing
+pdfplumber>=0.9.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+
+# Web Framework
+django>=4.2.0
+
+# Production Server
+gunicorn>=21.2.0
+
+# Static Files (production)
+whitenoise>=6.5.0
+
+# Environment Variables
+python-dotenv>=1.0.0
+
+# Utilities
+tqdm>=4.65.0
