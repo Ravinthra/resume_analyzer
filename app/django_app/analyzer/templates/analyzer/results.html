@@ -4,159 +4,218 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analysis Results — AI Resume Analyzer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="description" content="AI-powered resume analysis results showing match score, skill gaps, and improvement suggestions.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg-primary: #06080f;
+            --bg-secondary: #0d1117;
+            --bg-card: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --accent-blue: #58a6ff;
+            --accent-purple: #bc8cff;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --accent-yellow: #d29922;
+            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(102,126,234,0.15) 0%, transparent 60%);
+            --radius: 16px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: #0a0e1a;
-            color: #e1e5ee;
-            min-height: 100vh;
-            padding: 40px 20px;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: -30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120vw;
+            height: 60vh;
+            background: var(--gradient-glow);
+            pointer-events: none;
+            z-index: 0;
         }
 
         .container {
-            max-width: 900px;
+            max-width: 960px;
             margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
         }
 
-        .header {
+        /* Header */
+        .results-header {
             text-align: center;
-            margin-bottom: 32px;
+            padding: 60px 0 16px;
         }
 
-        .header h1 {
+        .results-header h1 {
             font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            font-weight: 800;
+            background: var(--gradient-main);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
         }
 
-        .header .meta {
-            color: #6b7280;
-            font-size: 0.9rem;
+        .results-meta {
+            display: inline-flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
 
-        .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 28px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
+        .meta-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
         }
 
-        .card-title {
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #8892a4;
-            margin-bottom: 16px;
-        }
+        .meta-chip strong { color: var(--text-primary); }
 
-        /* Match Score */
-        .score-section {
+        /* Score Ring */
+        .score-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 48px 32px;
             text-align: center;
-            padding: 20px 0;
+            margin: 28px 0;
         }
 
-        .score-value {
-            font-size: 4rem;
-            font-weight: 700;
+        .score-ring-container {
+            position: relative;
+            width: 180px;
+            height: 180px;
+            margin: 0 auto 24px;
+        }
+
+        .score-ring-container svg {
+            transform: rotate(-90deg);
+        }
+
+        .score-ring-bg {
+            fill: none;
+            stroke: rgba(255,255,255,0.05);
+            stroke-width: 10;
+        }
+
+        .score-ring-fill {
+            fill: none;
+            stroke-width: 10;
+            stroke-linecap: round;
+            stroke-dasharray: 502;
+            stroke-dashoffset: 502;
+            transition: stroke-dashoffset 1.5s ease-out;
+        }
+
+        .score-ring-fill.high { stroke: url(#grad-green); }
+        .score-ring-fill.med  { stroke: url(#grad-yellow); }
+        .score-ring-fill.low  { stroke: url(#grad-red); }
+
+        .score-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .score-number .value {
+            font-size: 3rem;
+            font-weight: 800;
             line-height: 1;
-            margin-bottom: 4px;
         }
 
-        .score-label {
-            color: #8892a4;
-            font-size: 0.9rem;
+        .score-number .value.high { color: var(--accent-green); }
+        .score-number .value.med  { color: var(--accent-yellow); }
+        .score-number .value.low  { color: var(--accent-red); }
+
+        .score-number .unit {
+            font-size: 1.2rem;
+            font-weight: 600;
+            opacity: 0.6;
         }
 
-        .score-bar-container {
-            width: 100%;
-            max-width: 500px;
-            height: 12px;
-            background: rgba(255,255,255,0.06);
-            border-radius: 6px;
-            margin: 20px auto 0;
-            overflow: hidden;
+        .score-subtitle {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 24px;
         }
 
-        .score-bar {
-            height: 100%;
-            border-radius: 6px;
-            transition: width 1.5s ease-out;
-        }
-
-        .score-high { background: linear-gradient(90deg, #34d399, #10b981); }
-        .score-med  { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
-        .score-low  { background: linear-gradient(90deg, #f87171, #ef4444); }
-
-        .score-color-high { color: #34d399; }
-        .score-color-med  { color: #fbbf24; }
-        .score-color-low  { color: #f87171; }
-
-        .coverage-value {
-            font-size: 2rem;
-            font-weight: 700;
-        }
-
-        .empty-text {
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-
-        .empty-text-success {
-            color: #6ee7b7;
-            font-size: 0.9rem;
-        }
-
-        .card-center {
-            text-align: center;
-        }
-
-        .coverage-subtitle {
-            color: #6b7280;
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-
-        .back-wrapper {
-            text-align: center;
-            margin-top: 16px;
-        }
-
-        /* Role Badge */
+        /* Role Badges */
         .role-badges {
             display: flex;
             gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 16px;
         }
 
         .role-badge {
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-size: 0.85rem;
+            padding: 8px 18px;
+            border-radius: 100px;
+            font-size: 0.84rem;
             font-weight: 500;
         }
 
         .role-target {
-            background: rgba(102,126,234,0.15);
-            color: #667eea;
-            border: 1px solid rgba(102,126,234,0.3);
+            background: rgba(88,166,255,0.1);
+            color: var(--accent-blue);
+            border: 1px solid rgba(88,166,255,0.2);
         }
 
         .role-predicted {
-            background: rgba(139,92,246,0.15);
-            color: #a78bfa;
-            border: 1px solid rgba(139,92,246,0.3);
+            background: rgba(188,140,255,0.1);
+            color: var(--accent-purple);
+            border: 1px solid rgba(188,140,255,0.2);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        /* Two Column */
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 640px) {
+            .two-col { grid-template-columns: 1fr; }
         }
 
         /* Skill Tags */
@@ -167,132 +226,190 @@
         }
 
         .skill-tag {
-            padding: 5px 14px;
-            border-radius: 20px;
-            font-size: 0.82rem;
+            padding: 6px 14px;
+            border-radius: 100px;
+            font-size: 0.8rem;
             font-weight: 500;
         }
 
         .skill-match {
-            background: rgba(52,211,153,0.12);
-            color: #6ee7b7;
-            border: 1px solid rgba(52,211,153,0.25);
+            background: rgba(63,185,80,0.1);
+            color: var(--accent-green);
+            border: 1px solid rgba(63,185,80,0.15);
         }
 
         .skill-missing {
-            background: rgba(248,113,113,0.12);
-            color: #fca5a5;
-            border: 1px solid rgba(248,113,113,0.25);
+            background: rgba(248,81,73,0.1);
+            color: var(--accent-red);
+            border: 1px solid rgba(248,81,73,0.15);
         }
 
         .skill-count {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-bottom: 12px;
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            margin-bottom: 14px;
         }
 
-        /* Lists */
-        .insight-list {
-            list-style: none;
+        .empty-text {
+            color: var(--text-muted);
+            font-size: 0.88rem;
         }
+
+        .empty-text-success {
+            color: var(--accent-green);
+            font-size: 0.88rem;
+        }
+
+        /* Insight Lists */
+        .insight-list { list-style: none; }
 
         .insight-list li {
-            padding: 10px 16px;
-            border-radius: 10px;
+            padding: 12px 18px;
+            border-radius: 12px;
             margin-bottom: 8px;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             line-height: 1.5;
         }
 
         .strength-item {
-            background: rgba(52,211,153,0.06);
-            border-left: 3px solid #34d399;
-            color: #d1fae5;
+            background: rgba(63,185,80,0.05);
+            border-left: 3px solid var(--accent-green);
+            color: #aef2b5;
         }
 
         .suggestion-item {
-            background: rgba(251,191,36,0.06);
-            border-left: 3px solid #fbbf24;
-            color: #fef3c7;
+            background: rgba(210,153,34,0.05);
+            border-left: 3px solid var(--accent-yellow);
+            color: #f0dfa0;
         }
 
-        /* Two Column Layout */
-        .two-col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        /* Coverage Card */
+        .coverage-card {
+            text-align: center;
         }
 
-        @media (max-width: 640px) {
-            .two-col { grid-template-columns: 1fr; }
-            .score-value { font-size: 3rem; }
+        .coverage-value {
+            font-size: 2.5rem;
+            font-weight: 800;
         }
+
+        .coverage-value.high { color: var(--accent-green); }
+        .coverage-value.med { color: var(--accent-yellow); }
+        .coverage-value.low { color: var(--accent-red); }
+
+        .coverage-subtitle {
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            margin-top: 4px;
+        }
+
+        .coverage-bar-track {
+            width: 100%;
+            max-width: 400px;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            margin: 16px auto 0;
+            overflow: hidden;
+        }
+
+        .coverage-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1.5s ease-out;
+        }
+
+        .coverage-bar-fill.high { background: linear-gradient(90deg, #238636, #3fb950); }
+        .coverage-bar-fill.med  { background: linear-gradient(90deg, #9e6a03, #d29922); }
+        .coverage-bar-fill.low  { background: linear-gradient(90deg, #da3633, #f85149); }
 
         /* Back Button */
+        .back-wrapper {
+            text-align: center;
+            padding: 16px 0 60px;
+        }
+
         .back-btn {
-            display: inline-block;
-            padding: 10px 24px;
-            background: rgba(255,255,255,0.06);
-            color: #c5cae0;
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            background: rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
             text-decoration: none;
             font-family: 'Inter', sans-serif;
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.2s;
-            margin-top: 8px;
         }
 
         .back-btn:hover {
-            background: rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.08);
+            color: var(--text-primary);
             transform: translateY(-1px);
-        }
-
-        .divider {
-            border: none;
-            border-top: 1px solid rgba(255,255,255,0.06);
-            margin: 4px 0;
         }
     </style>
 </head>
 <body>
+    <div class="bg-glow"></div>
+
     <div class="container">
-        <div class="header">
+        <!-- Header -->
+        <div class="results-header">
             <h1>Analysis Results</h1>
-            <p class="meta">
-                Resume: <strong>{{ filename }}</strong>
-                &nbsp;|&nbsp;
-                Target: <strong>{{ result.job_role }}</strong>
-            </p>
-        </div>
-
-        <!-- Match Score Card -->
-        <div class="card">
-            <div class="score-section">
-                <div class="score-value {% if result.match_score >= 70 %}score-color-high{% elif result.match_score >= 40 %}score-color-med{% else %}score-color-low{% endif %}">
-                    {{ result.match_score }}%
-                </div>
-                <div class="score-label">Semantic Match Score (BERT Cosine Similarity)</div>
-
-                <div class="score-bar-container">
-                    <div class="score-bar {% if result.match_score >= 70 %}score-high{% elif result.match_score >= 40 %}score-med{% else %}score-low{% endif %}"
-                         id="score-bar" data-width="{{ result.match_score }}"></div>
-                </div>
-
-                <div class="role-badges">
-                    <span class="role-badge role-target">Target: {{ result.job_role }}</span>
-                    <span class="role-badge role-predicted">
-                        Predicted: {{ result.predicted_role }} ({{ result.predicted_confidence }}%)
-                    </span>
-                </div>
+            <div class="results-meta">
+                <span class="meta-chip">&#128196; <strong>{{ filename }}</strong></span>
+                <span class="meta-chip">&#127919; Target: <strong>{{ result.job_role }}</strong></span>
             </div>
         </div>
 
-        <!-- Skills: Matching & Missing -->
+        <!-- Score Ring -->
+        <div class="score-card">
+            <div class="score-ring-container">
+                <svg width="180" height="180" viewBox="0 0 180 180">
+                    <defs>
+                        <linearGradient id="grad-green" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#238636"/>
+                            <stop offset="100%" stop-color="#3fb950"/>
+                        </linearGradient>
+                        <linearGradient id="grad-yellow" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#9e6a03"/>
+                            <stop offset="100%" stop-color="#d29922"/>
+                        </linearGradient>
+                        <linearGradient id="grad-red" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#da3633"/>
+                            <stop offset="100%" stop-color="#f85149"/>
+                        </linearGradient>
+                    </defs>
+                    <circle class="score-ring-bg" cx="90" cy="90" r="80"/>
+                    <circle class="score-ring-fill {% if result.match_score >= 70 %}high{% elif result.match_score >= 40 %}med{% else %}low{% endif %}"
+                            cx="90" cy="90" r="80"
+                            id="score-ring"
+                            data-score="{{ result.match_score }}"/>
+                </svg>
+                <div class="score-number">
+                    <span class="value {% if result.match_score >= 70 %}high{% elif result.match_score >= 40 %}med{% else %}low{% endif %}">
+                        {{ result.match_score }}
+                    </span>
+                    <span class="unit">%</span>
+                </div>
+            </div>
+            <div class="score-subtitle">Semantic Match Score (BERT Cosine Similarity)</div>
+
+            <div class="role-badges">
+                <span class="role-badge role-target">Target: {{ result.job_role }}</span>
+                <span class="role-badge role-predicted">
+                    Predicted: {{ result.predicted_role }} ({{ result.predicted_confidence }}%)
+                </span>
+            </div>
+        </div>
+
+        <!-- Skills -->
         <div class="two-col">
             <div class="card">
-                <div class="card-title">Matching Skills</div>
+                <div class="card-title">&#9989; Matching Skills</div>
                 <p class="skill-count">{{ result.matching_skills|length }} skills match the job requirements</p>
                 <div class="skill-grid">
                     {% for skill in result.matching_skills %}
@@ -304,7 +421,7 @@
             </div>
 
             <div class="card">
-                <div class="card-title">Missing Skills</div>
+                <div class="card-title">&#10060; Missing Skills</div>
                 <p class="skill-count">{{ result.missing_skills|length }} skills to develop</p>
                 <div class="skill-grid">
                     {% for skill in result.missing_skills %}
@@ -318,7 +435,7 @@
 
         <!-- Strengths -->
         <div class="card">
-            <div class="card-title">Resume Strengths</div>
+            <div class="card-title">&#128170; Resume Strengths</div>
             <ul class="insight-list">
                 {% for strength in result.resume_strengths %}
                 <li class="strength-item">{{ strength }}</li>
@@ -326,9 +443,9 @@
             </ul>
         </div>
 
-        <!-- Improvement Suggestions -->
+        <!-- Suggestions -->
         <div class="card">
-            <div class="card-title">Improvement Suggestions</div>
+            <div class="card-title">&#128161; Improvement Suggestions</div>
             <ul class="insight-list">
                 {% for suggestion in result.improvement_suggestions %}
                 <li class="suggestion-item">{{ suggestion }}</li>
@@ -336,25 +453,49 @@
             </ul>
         </div>
 
-        <!-- Skill Match Percentage -->
-        <div class="card card-center">
+        <!-- Skill Coverage -->
+        <div class="card coverage-card">
             <div class="card-title">Skill Coverage</div>
-            <div class="coverage-value {% if result.skill_match_percentage >= 70 %}score-color-high{% elif result.skill_match_percentage >= 40 %}score-color-med{% else %}score-color-low{% endif %}">
+            <div class="coverage-value {% if result.skill_match_percentage >= 70 %}high{% elif result.skill_match_percentage >= 40 %}med{% else %}low{% endif %}">
                 {{ result.skill_match_percentage }}%
             </div>
-            <p class="coverage-subtitle">
-                of required JD skills are present in your resume
-            </p>
+            <p class="coverage-subtitle">of required JD skills are present in your resume</p>
+            <div class="coverage-bar-track">
+                <div class="coverage-bar-fill {% if result.skill_match_percentage >= 70 %}high{% elif result.skill_match_percentage >= 40 %}med{% else %}low{% endif %}"
+                     id="coverage-bar"
+                     data-width="{{ result.skill_match_percentage }}"></div>
+            </div>
         </div>
 
-        <!-- Back Button -->
+        <!-- Back -->
         <div class="back-wrapper">
-            <a href="{% url 'analyzer:home' %}" class="back-btn">Analyze Another Resume</a>
+            <a href="{% url 'analyzer:home' %}" class="back-btn">
+                &#8592; Analyze Another Resume
+            </a>
         </div>
     </div>
+
+    <script>
+        // Animate score ring
+        window.addEventListener('load', function() {
+            var ring = document.getElementById('score-ring');
+            if (ring) {
+                var score = parseFloat(ring.dataset.score) || 0;
+                var circumference = 2 * Math.PI * 80; // r=80
+                var offset = circumference - (circumference * score / 100);
+                setTimeout(function() {
+                    ring.style.strokeDashoffset = offset;
+                }, 100);
+            }
+
+            // Animate coverage bar
+            var bar = document.getElementById('coverage-bar');
+            if (bar) {
+                setTimeout(function() {
+                    bar.style.width = bar.dataset.width + '%';
+                }, 300);
+            }
+        });
+    </script>
 </body>
-<script>
-    var bar = document.getElementById('score-bar');
-    if (bar) bar.style.width = bar.dataset.width + '%';
-</script>
 </html>

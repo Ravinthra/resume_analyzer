@@ -3,157 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Resume Analyzer — Resume vs Job Description</title>
-    <meta name="description" content="AI-powered resume analysis against job descriptions using BERT deep learning">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>AI Resume Analyzer — BERT-Powered Resume Analysis</title>
+    <meta name="description" content="Analyze your resume against job descriptions using BERT deep learning. Get semantic match scores, skill gap analysis, and actionable improvement suggestions.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        /* ============================================
+           DESIGN SYSTEM
+           ============================================ */
+        :root {
+            --bg-primary: #06080f;
+            --bg-secondary: #0d1117;
+            --bg-card: rgba(255,255,255,0.03);
+            --border: rgba(255,255,255,0.06);
+            --border-hover: rgba(255,255,255,0.12);
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --text-muted: #484f58;
+            --accent-blue: #58a6ff;
+            --accent-purple: #bc8cff;
+            --accent-pink: #f778ba;
+            --accent-green: #3fb950;
+            --gradient-main: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            --gradient-card: linear-gradient(135deg, rgba(102,126,234,0.08), rgba(118,75,162,0.08));
+            --gradient-glow: radial-gradient(ellipse at 50% 0%, rgba(102,126,234,0.15) 0%, transparent 60%);
+            --shadow-card: 0 4px 24px rgba(0,0,0,0.3);
+            --radius: 16px;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: #0a0e1a;
-            color: #e1e5ee;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
         }
 
+        /* ============================================
+           ANIMATED BACKGROUND
+           ============================================ */
+        .bg-glow {
+            position: fixed;
+            top: -30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120vw;
+            height: 60vh;
+            background: var(--gradient-glow);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ============================================
+           LAYOUT
+           ============================================ */
         .container {
-            width: 100%;
-            max-width: 800px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 1;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 40px;
+        section {
+            padding: 80px 0;
         }
 
-        .header h1 {
-            font-size: 2.2rem;
+        /* ============================================
+           NAVIGATION
+           ============================================ */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 0;
+            background: rgba(6,8,15,0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .navbar .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.1rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            background: var(--gradient-main);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover { color: var(--text-primary); }
+
+        /* ============================================
+           HERO SECTION
+           ============================================ */
+        .hero {
+            padding: 160px 0 80px;
+            text-align: center;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(102,126,234,0.1);
+            border: 1px solid rgba(102,126,234,0.2);
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent-blue);
+            margin-bottom: 24px;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: -0.03em;
+        }
+
+        .hero h1 .gradient {
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin: 0 auto 40px;
+            line-height: 1.7;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            background: var(--gradient-main);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(102,126,234,0.3);
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(102,126,234,0.4);
+        }
+
+        /* ============================================
+           STATS ROW
+           ============================================ */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin: 60px 0;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            padding: 28px 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-main);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* ============================================
+           HOW IT WORKS
+           ============================================ */
+        .section-header {
+            text-align: center;
+            margin-bottom: 56px;
+        }
+
+        .section-tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-purple);
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .section-desc {
+            color: var(--text-secondary);
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px 24px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .step-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-card);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--accent-blue);
+            margin-bottom: 20px;
+        }
+
+        .step-card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
-        .header p {
-            color: #8892a4;
-            font-size: 1rem;
+        .step-card p {
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
         }
 
-        .card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 16px;
-            padding: 32px;
-            backdrop-filter: blur(10px);
+        /* ============================================
+           FEATURES
+           ============================================ */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px;
+            display: flex;
+            gap: 16px;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-size: 1.3rem;
+        }
+
+        .fi-blue  { background: rgba(88,166,255,0.1); }
+        .fi-purple { background: rgba(188,140,255,0.1); }
+        .fi-pink  { background: rgba(247,120,186,0.1); }
+        .fi-green { background: rgba(63,185,80,0.1); }
+
+        .feature-card h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .feature-card p {
+            font-size: 0.84rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           TECH STACK
+           ============================================ */
+        .tech-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .tech-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tech-chip:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        /* ============================================
+           ANALYSIS FORM
+           ============================================ */
+        .form-section {
+            padding: 80px 0 100px;
+        }
+
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 720px;
+            margin: 0 auto;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.2);
         }
 
         .form-group {
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
 
         .form-group label {
             display: block;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             margin-bottom: 8px;
-            color: #c5cae0;
+            color: var(--text-primary);
         }
 
         .form-group .help-text {
-            font-size: 0.8rem;
-            color: #6b7280;
-            margin-top: 4px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 6px;
         }
 
         input[type="text"], textarea, select {
             width: 100%;
-            padding: 12px 16px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 10px;
-            color: #e1e5ee;
+            padding: 13px 16px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text-primary);
             font-family: 'Inter', sans-serif;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
         input[type="text"]:focus, textarea:focus, select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.15);
+            border-color: rgba(102,126,234,0.5);
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
         }
 
         select {
             cursor: pointer;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238892a4' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238b949e' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 16px center;
         }
 
         select option {
-            background: #1a1e2e;
-            color: #e1e5ee;
+            background: #161b22;
+            color: var(--text-primary);
         }
 
         textarea {
             resize: vertical;
-            min-height: 160px;
+            min-height: 140px;
         }
 
-        /* File Upload Zone */
+        /* Upload Zone */
         .upload-zone {
-            border: 2px dashed rgba(102,126,234,0.4);
-            border-radius: 12px;
-            padding: 32px;
+            border: 2px dashed rgba(102,126,234,0.3);
+            border-radius: 14px;
+            padding: 36px;
             text-align: center;
             cursor: pointer;
             transition: all 0.3s;
-            background: rgba(102,126,234,0.04);
+            background: rgba(102,126,234,0.02);
         }
 
         .upload-zone:hover {
-            border-color: #667eea;
-            background: rgba(102,126,234,0.1);
+            border-color: rgba(102,126,234,0.6);
+            background: rgba(102,126,234,0.06);
         }
 
         .upload-zone.dragover {
-            border-color: #764ba2;
-            background: rgba(118,75,162,0.15);
+            border-color: var(--accent-purple);
+            background: rgba(118,75,162,0.1);
         }
 
-        .upload-zone .icon {
-            font-size: 2.5rem;
-            margin-bottom: 8px;
-        }
-
-        .upload-zone .text {
-            color: #8892a4;
-            font-size: 0.9rem;
-        }
-
+        .upload-zone .icon { font-size: 2.5rem; margin-bottom: 8px; }
+        .upload-zone .text { color: var(--text-secondary); font-size: 0.88rem; }
         .upload-zone .filename {
-            color: #667eea;
+            color: var(--accent-blue);
             font-weight: 600;
             margin-top: 8px;
             display: none;
         }
-
-        .upload-zone input[type="file"] {
-            display: none;
-        }
+        .upload-zone input[type="file"] { display: none; }
 
         /* Submit Button */
         .submit-btn {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 15px;
+            background: var(--gradient-main);
             color: white;
             border: none;
             border-radius: 12px;
@@ -162,7 +514,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 8px;
+            letter-spacing: 0.01em;
         }
 
         .submit-btn:hover {
@@ -177,18 +529,13 @@
         }
 
         /* Loading */
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 24px;
-        }
-
+        .loading { display: none; text-align: center; padding: 24px; }
         .loading.active { display: block; }
 
         .spinner {
-            width: 48px; height: 48px;
-            border: 4px solid rgba(102,126,234,0.2);
-            border-top: 4px solid #667eea;
+            width: 44px; height: 44px;
+            border: 3px solid rgba(102,126,234,0.15);
+            border-top: 3px solid var(--accent-blue);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 16px;
@@ -198,26 +545,26 @@
 
         /* Error */
         .error-msg {
-            background: rgba(239,68,68,0.1);
-            border: 1px solid rgba(239,68,68,0.3);
-            border-radius: 10px;
-            padding: 12px 16px;
-            color: #fca5a5;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+            background: rgba(248,81,73,0.1);
+            border: 1px solid rgba(248,81,73,0.2);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: #f85149;
+            font-size: 0.88rem;
+            margin-bottom: 24px;
         }
 
         .section-divider {
             border: none;
-            border-top: 1px solid rgba(255,255,255,0.06);
+            border-top: 1px solid var(--border);
             margin: 28px 0;
         }
 
         .step-label {
             display: inline-block;
-            background: rgba(102,126,234,0.15);
-            color: #667eea;
-            font-size: 0.75rem;
+            background: rgba(102,126,234,0.1);
+            color: var(--accent-blue);
+            font-size: 0.72rem;
             font-weight: 600;
             padding: 3px 10px;
             border-radius: 20px;
@@ -225,97 +572,295 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
+
+        /* ============================================
+           FOOTER
+           ============================================ */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+        }
+
+        .footer a {
+            color: var(--text-secondary);
+            text-decoration: none;
+        }
+
+        .footer a:hover { color: var(--text-primary); }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+        @media (max-width: 768px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .steps-grid { grid-template-columns: 1fr; }
+            .features-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .form-card { padding: 24px; }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>AI Resume Analyzer</h1>
-            <p>Analyze your resume against any job description using BERT</p>
+    <div class="bg-glow"></div>
+    <div class="bg-grid"></div>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">AI Resume Analyzer</div>
+            <ul class="nav-links">
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#tech">Technology</a></li>
+                <li><a href="#analyze">Analyze</a></li>
+            </ul>
         </div>
+    </nav>
 
-        {% if error %}
-        <div class="error-msg">{{ error }}</div>
-        {% endif %}
-
-        <form method="post" action="{% url 'analyzer:analyze' %}" enctype="multipart/form-data" id="analysis-form">
-            {% csrf_token %}
-
-            <div class="card">
-                <!-- Step 1: Upload Resume -->
-                <div class="form-group">
-                    <span class="step-label">Step 1</span>
-                    <label for="resume-file-input">Upload Your Resume</label>
-                    <div class="upload-zone" id="drop-zone">
-                        <div class="icon">&#128196;</div>
-                        <div class="text">Drop your resume here or click to browse</div>
-                        <div class="filename" id="file-name"></div>
-                        <input type="file" name="resume_file" id="resume-file-input" accept=".pdf,.txt">
-                    </div>
-                    <p class="help-text">Accepted: PDF or TXT files</p>
-                </div>
-
-                <hr class="section-divider">
-
-                <!-- Step 2: Job Role -->
-                <div class="form-group">
-                    <span class="step-label">Step 2</span>
-                    <label for="job-role-input">Target Job Role</label>
-                    {{ form.job_role }}
-                    <p class="help-text">Select the role you're applying for</p>
-                </div>
-
-                <hr class="section-divider">
-
-                <!-- Step 3: Job Description -->
-                <div class="form-group">
-                    <span class="step-label">Step 3</span>
-                    <label for="job-description-input">Job Description</label>
-                    <textarea name="job_description" id="job-description-input"
-                              placeholder="Paste the full job description here...
-
-Example:
-We are looking for a Machine Learning Engineer with experience in PyTorch, TensorFlow, and cloud deployment. The ideal candidate should have strong Python skills, experience with NLP models like BERT, and familiarity with MLOps practices including Docker and Kubernetes..."
-                              required></textarea>
-                    <p class="help-text">Paste the full JD from the job posting</p>
-                </div>
-
-                <!-- Submit -->
-                <button type="submit" class="submit-btn" id="submit-btn">
-                    Analyze Resume Against Job
-                </button>
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                Powered by BERT Deep Learning
             </div>
+            <h1>
+                Analyze Your Resume<br>
+                With <span class="gradient">AI Precision</span>
+            </h1>
+            <p class="hero-subtitle">
+                Upload your resume and paste any job description — our fine-tuned BERT model
+                computes semantic similarity, predicts your best-fit IT role, identifies skill gaps,
+                and gives you actionable improvement suggestions.
+            </p>
+            <a href="#analyze" class="hero-cta">
+                Start Analyzing &#8594;
+            </a>
+        </div>
+    </section>
 
-            <!-- Loading State -->
-            <div class="loading" id="loading">
-                <div class="card" style="margin-top: 20px;">
-                    <div class="spinner"></div>
-                    <p style="color: #667eea; font-weight: 600;">Analyzing with BERT...</p>
-                    <p style="color: #6b7280; font-size: 0.85rem; margin-top: 8px;">
-                        Computing embeddings and skill analysis (15-30 seconds)
-                    </p>
-                </div>
+    <!-- STATS -->
+    <div class="container">
+        <div class="stats-row">
+            <div class="stat-item">
+                <div class="stat-value">25</div>
+                <div class="stat-label">IT Job Roles</div>
             </div>
-        </form>
+            <div class="stat-item">
+                <div class="stat-value">90K+</div>
+                <div class="stat-label">Training Resumes</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">99.9%</div>
+                <div class="stat-label">Classification F1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">BERT</div>
+                <div class="stat-label">Base Architecture</div>
+            </div>
+        </div>
     </div>
 
+    <!-- HOW IT WORKS -->
+    <section id="how-it-works">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">How It Works</div>
+                <h2 class="section-title">Three Steps to Better Applications</h2>
+                <p class="section-desc">Our pipeline uses transformer-based NLP to deeply understand both your resume and the target job description.</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Upload Resume</h3>
+                    <p>Drop your resume (PDF or TXT). Our text extraction pipeline handles complex layouts, tables, and multi-column formats using pdfplumber.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>BERT Analysis</h3>
+                    <p>Your resume is tokenized and passed through a fine-tuned BERT model. We compute [CLS] embeddings for semantic understanding and cosine similarity against the job description.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Get Insights</h3>
+                    <p>Receive your match score, predicted role, matching &amp; missing skills, resume strengths, and actionable improvement suggestions — all in seconds.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Features</div>
+                <h2 class="section-title">What You Get</h2>
+                <p class="section-desc">More than a keyword matcher — we use deep learning to truly understand resume-to-job fit.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon fi-blue">&#128202;</div>
+                    <div>
+                        <h4>Semantic Match Score</h4>
+                        <p>BERT cosine similarity between your resume and the JD — measures true meaning overlap, not just keyword matching.</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon fi-purple">&#127919;</div>
+                    <div>
+                        <h4>Role Classification</h4>
+                        <p>Our fine-tuned classifier predicts which of 25 IT roles your experience best fits, with confidence percentages.</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon fi-green">&#9989;</div>
+                    <div>
+                        <h4>Skill Gap Analysis</h4>
+                        <p>Identifies which skills in the JD you already have and which ones are missing — so you know exactly what to learn.</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon fi-pink">&#128161;</div>
+                    <div>
+                        <h4>Smart Suggestions</h4>
+                        <p>Personalized improvement recommendations based on your skill gaps and the target role's requirements.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TECH STACK -->
+    <section id="tech">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Technology</div>
+                <h2 class="section-title">Built With Modern ML Stack</h2>
+                <p class="section-desc">Production-grade deep learning pipeline using state-of-the-art NLP models.</p>
+            </div>
+            <div class="tech-grid">
+                <span class="tech-chip">&#129302; BERT (bert-base-uncased)</span>
+                <span class="tech-chip">&#128293; PyTorch</span>
+                <span class="tech-chip">&#129303; Hugging Face Transformers</span>
+                <span class="tech-chip">&#127760; Django</span>
+                <span class="tech-chip">&#128202; scikit-learn</span>
+                <span class="tech-chip">&#128196; pdfplumber</span>
+                <span class="tech-chip">&#128051; Docker</span>
+                <span class="tech-chip">&#9889; Gunicorn</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- ANALYSIS FORM -->
+    <section class="form-section" id="analyze">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-tag">Analyze</div>
+                <h2 class="section-title">Try It Now</h2>
+                <p class="section-desc">Upload your resume, select the target role, and paste the job description.</p>
+            </div>
+
+            {% if error %}
+            <div class="form-card" style="margin-bottom: 20px; max-width: 720px; margin-left: auto; margin-right: auto;">
+                <div class="error-msg">{{ error }}</div>
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'analyzer:analyze' %}" enctype="multipart/form-data" id="analysis-form">
+                {% csrf_token %}
+
+                <div class="form-card">
+                    <!-- Step 1: Upload -->
+                    <div class="form-group">
+                        <span class="step-label">Step 1</span>
+                        <label for="resume-file-input">Upload Your Resume</label>
+                        <div class="upload-zone" id="drop-zone">
+                            <div class="icon">&#128196;</div>
+                            <div class="text">Drop your resume here or click to browse</div>
+                            <div class="filename" id="file-name"></div>
+                            <input type="file" name="resume_file" id="resume-file-input" accept=".pdf,.txt">
+                        </div>
+                        <p class="help-text">Accepted: PDF or TXT (max 5 MB)</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <!-- Step 2: Role -->
+                    <div class="form-group">
+                        <span class="step-label">Step 2</span>
+                        <label for="job-role-input">Target Job Role</label>
+                        {{ form.job_role }}
+                        <p class="help-text">Select the role you're applying for</p>
+                    </div>
+
+                    <hr class="section-divider">
+
+                    <!-- Step 3: JD -->
+                    <div class="form-group">
+                        <span class="step-label">Step 3</span>
+                        <label for="job-description-input">Job Description</label>
+                        <textarea name="job_description" id="job-description-input"
+                                  placeholder="Paste the full job description here..."
+                                  required></textarea>
+                        <p class="help-text">Paste the full JD from the job posting</p>
+                    </div>
+
+                    <!-- Submit -->
+                    <button type="submit" class="submit-btn" id="submit-btn">
+                        Analyze Resume &#8594;
+                    </button>
+                </div>
+
+                <!-- Loading -->
+                <div class="loading" id="loading">
+                    <div class="form-card" style="margin-top: 20px;">
+                        <div class="spinner"></div>
+                        <p style="color: var(--accent-blue); font-weight: 600;">Analyzing with BERT...</p>
+                        <p style="color: var(--text-muted); font-size: 0.84rem; margin-top: 8px;">
+                            Computing embeddings and skill analysis (15-30 seconds)
+                        </p>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <p>
+                AI Resume Analyzer &mdash;
+                Built with BERT, PyTorch &amp; Django &middot;
+                <a href="https://github.com/Ravinthra/resume_analyzer" target="_blank">GitHub</a>
+            </p>
+        </div>
+    </footer>
+
     <script>
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(a => {
+            a.addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelector(a.getAttribute('href')).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
         // Drag and drop
         const dropZone = document.getElementById('drop-zone');
         const fileInput = document.getElementById('resume-file-input');
         const fileName = document.getElementById('file-name');
 
         dropZone.addEventListener('click', () => fileInput.click());
-
-        dropZone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropZone.classList.add('dragover');
-        });
-
-        dropZone.addEventListener('dragleave', () => {
-            dropZone.classList.remove('dragover');
-        });
-
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
@@ -326,9 +871,7 @@ We are looking for a Machine Learning Engineer with experience in PyTorch, Tenso
         });
 
         fileInput.addEventListener('change', () => {
-            if (fileInput.files.length) {
-                showFileName(fileInput.files[0].name);
-            }
+            if (fileInput.files.length) showFileName(fileInput.files[0].name);
         });
 
         function showFileName(name) {
@@ -337,10 +880,16 @@ We are looking for a Machine Learning Engineer with experience in PyTorch, Tenso
             dropZone.querySelector('.text').textContent = 'File selected:';
         }
 
-        // Loading state on submit
+        // Loading on submit
         document.getElementById('analysis-form').addEventListener('submit', function() {
             document.getElementById('submit-btn').disabled = true;
             document.getElementById('loading').classList.add('active');
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const nav = document.querySelector('.navbar');
+            nav.style.borderBottomColor = window.scrollY > 50 ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)';
         });
     </script>
 </body>
