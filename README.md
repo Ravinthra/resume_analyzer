@@ -44,11 +44,11 @@ Resume (PDF/TXT)
 Job Description                    │          │                      
     │                              │          │                      
     ├─→ BERT Encoding              │          │                      
-    │   └─→ JD Embedding ─────────┤          │                      
+    │   └─→ JD Embedding ──────────┤          │                      
     │       (768-dim)              │          │                      
     │                              │          │                      
     ├─→ Skill Extraction           │          │                      
-    │   └─→ JD Skills ────────────│──────────┤                      
+    │   └─→ JD Skills ─────────────│──────────┤                      
     │                              │          │                      
     │                              v          v                      
     │                        Cosine      Set Operations              
