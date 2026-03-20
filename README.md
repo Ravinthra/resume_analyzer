@@ -12,7 +12,7 @@ A production-quality deep learning system that analyzes resumes against job desc
 ## Features
 
 | Feature | Description | Technique |
-|---------|-------------|-----------|
+| --------- | ------------- | ----------- |
 | **Resume vs JD Analysis** | Compare a resume against a specific job description | BERT [CLS] embeddings + Cosine similarity |
 | **Role Classification** | Predicts candidate's job role from resume text | BERT fine-tuning + Linear classifier |
 | **Skill Gap Analysis** | Identifies matching and missing skills | Keyword extraction + Set operations |
@@ -22,7 +22,7 @@ A production-quality deep learning system that analyzes resumes against job desc
 
 ## Architecture
 
-```
+```text
 INPUT                              PROCESS                           OUTPUT
 ─────                              ───────                           ──────
 
@@ -78,7 +78,7 @@ This project demonstrates the following concepts:
 
 ## Project Structure
 
-```
+```text
 resume_analyzer/
 ├── data/
 │   ├── resumes/              # 600+ synthetic resumes (120 per role)
@@ -107,6 +107,7 @@ resume_analyzer/
 ## Installation
 
 ### Prerequisites
+
 - Python 3.10+
 - pip
 
@@ -131,6 +132,7 @@ python -m src.train
 ```
 
 This will:
+
 - Load 600+ resumes from `data/resumes/`
 - Tokenize with BERT's WordPiece tokenizer
 - Train for 3 epochs with AdamW optimizer
@@ -143,6 +145,7 @@ python -m src.predict
 ```
 
 **Output format:**
+
 ```json
 {
   "job_role": "Data Scientist",
@@ -166,7 +169,7 @@ Open `http://localhost:8000/` → Upload resume + Enter job role + Paste JD → 
 ## Model Details
 
 | Parameter | Value |
-|-----------|-------|
+| ----------- | ------- |
 | Base Model | `bert-base-uncased` (110M params) |
 | Classification Head | Linear(768 → 5) |
 | Dropout | 0.3 |
@@ -181,7 +184,7 @@ Open `http://localhost:8000/` → Upload resume + Enter job role + Paste JD → 
 ## Job Role Classes
 
 | ID | Label |
-|----|-------|
+| ---- | ------- |
 | 0 | Data Scientist |
 | 1 | Software Engineer |
 | 2 | Web Developer |
@@ -191,16 +194,20 @@ Open `http://localhost:8000/` → Upload resume + Enter job role + Paste JD → 
 ## Key Files Explained
 
 ### `src/predict.py`
+
 - `ResumeJobAnalyzer` — Analyzes resume against a specific JD (match score, skill gaps, suggestions)
 - `ResumeAnalyzer` — Classifies resume role and matches against stored JDs
 
 ### `src/utils.py`
+
 Text preprocessing (PDF extraction, regex cleaning) and skill analysis (extraction, gap detection, strengths identification, improvement suggestions).
 
 ### `src/model.py`
+
 `ResumeClassifier(nn.Module)` — BERT encoder + Dropout + Linear head with `freeze_bert()` / `unfreeze_bert()` for transfer learning.
 
 ### `src/train.py`
+
 Training loop with AdamW optimizer, CrossEntropyLoss, learning rate warmup, gradient clipping, and checkpointing.
 
 ## Technologies
