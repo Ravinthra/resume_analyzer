@@ -43,9 +43,8 @@ SPACE_HOST = os.environ.get('SPACE_HOST')
 if SPACE_HOST:
     ALLOWED_HOSTS.append(SPACE_HOST)
 
-# Allow all .hf.space subdomains
-if any('.hf.space' not in h for h in ALLOWED_HOSTS):
-    ALLOWED_HOSTS.append('.hf.space')
+# Allow all .hf.space subdomains and internal HF proxy routing
+ALLOWED_HOSTS.extend(['.hf.space', '.huggingface.tech'])
 
 # --- CSRF Protection ---
 CSRF_COOKIE_HTTPONLY = True
@@ -56,7 +55,7 @@ CSRF_TRUSTED_ORIGINS = [
     if host and host != 'localhost' and host != '127.0.0.1'
 ]
 if not DEBUG:
-    CSRF_TRUSTED_ORIGINS.append("https://*.hf.space")
+    CSRF_TRUSTED_ORIGINS.extend(["https://*.hf.space", "https://*.huggingface.tech"])
 
 # --- Session Security ---
 SESSION_COOKIE_HTTPONLY = True
