@@ -29,11 +29,11 @@ INPUT                              PROCESS                           OUTPUT
 Resume (PDF/TXT)                                                     
     │                                                                
     ├─→ Text Extraction                                              
-    │   └─→ Cleaning ──→ BERT Tokenizer                              
-    │                        │                                       
-    │               ┌───────┼──────────┐                             
-    │               │       │          │                             
-    │               v       v          v                             
+    │   └─→ Cleaning ────→ BERT Tokenizer                              
+    │                           │                                       
+    │               ┌───────────┼──────────┐                             
+    │               │           │          │                             
+    │               v           v          v                             
     │         Classification  Resume     Skill                       
     │         Head            Embedding   Extraction                  
     │         (Linear)        (768-dim)   (Regex)                     
