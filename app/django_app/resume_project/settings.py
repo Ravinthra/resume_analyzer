@@ -67,12 +67,12 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # --- Security Headers ---
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
-X_FRAME_OPTIONS = 'DENY'
+# Removed X_FRAME_OPTIONS completely to allow Hugging Face iframe embedding
 SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
 
 # --- HTTPS (Production only) ---
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    # Removed SECURE_SSL_REDIRECT as HF proxy handles SSL termination and health checks
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -106,7 +106,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Removed XFrameOptionsMiddleware to allow Hugging Face iframe embedding
 ]
 
 ROOT_URLCONF = 'resume_project.urls'
