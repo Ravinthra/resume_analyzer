@@ -6,6 +6,7 @@
 ![Django](https://img.shields.io/badge/Django-4.2+-092E20?style=for-the-badge&logo=django&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![BERT](https://img.shields.io/badge/BERT-Fine--Tuned-FF6F00?style=for-the-badge)
+![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
 
 A production-grade, deep learning–powered system that analyzes resumes against job descriptions using fine-tuned **BERT**. It goes far beyond keyword matching — computing deep semantic similarity via BERT embeddings, predicting a candidate's job role, performing skill gap analysis, and generating actionable career improvement suggestions.
 
@@ -537,6 +538,6 @@ tqdm>=4.65.0          # Progress bars
 
 ## 📄 License
 
-This project is for educational and portfolio purposes.
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
 > *Built as a comprehensive deep learning portfolio project demonstrating BERT fine-tuning, transfer learning, robust ML pipeline design, large-scale synthetic data generation, and production-grade web application engineering on Hugging Face Spaces.*
