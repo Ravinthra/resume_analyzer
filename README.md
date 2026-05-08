@@ -1,17 +1,11 @@
 # 🚀 AI Resume Analyzer
 
-<div align="center">
-
-  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python">
-  <img src="https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch">
-  <img src="https://img.shields.io/badge/HuggingFace-Transformers-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="HuggingFace">
-  <img src="https://img.shields.io/badge/Django-4.2+-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django">
-  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker">
-  <img src="https://img.shields.io/badge/BERT-Fine--Tuned-FF6F00?style=for-the-badge" alt="BERT">
-
-</div>
-
-<br>
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white)
+![HuggingFace](https://img.shields.io/badge/HuggingFace-Transformers-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)
+![Django](https://img.shields.io/badge/Django-4.2+-092E20?style=for-the-badge&logo=django&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![BERT](https://img.shields.io/badge/BERT-Fine--Tuned-FF6F00?style=for-the-badge)
 
 A production-grade, deep learning–powered system that analyzes resumes against job descriptions using fine-tuned **BERT**. It goes far beyond keyword matching — computing deep semantic similarity via BERT embeddings, predicting a candidate's job role, performing skill gap analysis, and generating actionable career improvement suggestions.
 
@@ -24,7 +18,7 @@ The system ships with a **premium dark-mode web interface**, robust security har
 ### 🤖 Deep Learning AI Core
 
 | Feature | Technique |
-|---|---|
+| --- | --- |
 | **Semantic Match Score** | BERT `[CLS]` embeddings + Cosine Similarity against the target Job Description |
 | **Role Classification** | BERT fine-tuned with a `Linear(768 → 25)` classification head — predicts **25 IT professions** |
 | **Skill Gap Analysis** | Regex-based keyword extraction from a curated 200+ skill database + set operations |
@@ -116,7 +110,7 @@ Job Description (text)      │              │
 ### Two Prediction Classes
 
 | Class | Purpose | Use Case |
-|---|---|---|
+| --- | --- | --- |
 | `ResumeJobAnalyzer` | Analyze one resume against a **user-supplied** JD | Web interface, production |
 | `ResumeAnalyzer` | Classify resume + match against **stored JDs** | Batch analysis, research |
 
@@ -257,7 +251,7 @@ python manage.py migrate
 python manage.py runserver
 ```
 
-Open **http://127.0.0.1:8000/** in your browser.
+Open **<http://127.0.0.1:8000/>** in your browser.
 
 ---
 
@@ -265,7 +259,7 @@ Open **http://127.0.0.1:8000/** in your browser.
 
 ### Model Architecture — `src/model.py`
 
-```
+```text
 Input (input_ids [batch, 512], attention_mask [batch, 512])
     │
     ▼
@@ -292,7 +286,7 @@ Logits [batch, 25]  →  Softmax  →  Predicted Role
 
 Cosine similarity is used to score how well a resume matches a job description:
 
-```
+```text
 cos(θ) = (resume_embedding · jd_embedding) / (|resume_emb| × |jd_emb|)
 ```
 
@@ -317,7 +311,7 @@ A curated database of **200+ technical skills** (`SKILL_DATABASE`) is matched us
 ## 📊 Model Details
 
 | Parameter | Value |
-|---|---|
+| --- | --- |
 | **Base Model** | `bert-base-uncased` (110M parameters) |
 | **Classification Head** | `Linear(768 → 25)` with `Dropout(0.3)` |
 | **Optimizer** | AdamW (lr=2e-5, weight_decay=0.01) |
@@ -332,7 +326,7 @@ A curated database of **200+ technical skills** (`SKILL_DATABASE`) is matched us
 ### Supported Job Roles — 25 Classes
 
 | ID | Role | ID | Role |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 0 | Data Scientist | 13 | Cloud Architect |
 | 1 | Software Engineer | 14 | QA Engineer |
 | 2 | Web Developer | 15 | Mobile App Developer |
@@ -356,6 +350,7 @@ A curated database of **200+ technical skills** (`SKILL_DATABASE`) is matched us
 The project includes two fully-featured synthetic resume generators:
 
 **`scripts/generate_resumes.py`** — Generates 600 resumes (120 per class) across 5 classes:
+
 - Diverse candidate profiles: 80+ first names, 70+ last names, 33+ top universities, 20+ degree types
 - 50+ tech companies per role pool (FAANG, startups, consulting)
 - 4 different resume format templates (traditional, modern, skills-first, narrative)
@@ -363,11 +358,12 @@ The project includes two fully-featured synthetic resume generators:
 - 2–4 realistic project descriptions per resume
 - 1–3 certifications per resume
 
+
 **`scripts/generate_90k_resumes.py`** — Scales to 90,000+ resumes across all 25 IT job roles, using extended role configs from `scripts/role_configs.py`.
 
 ### Dataset Split Strategy
 
-```
+```text
 Synthetic resumes (15,000)  →  80% train  |  20% val  |   0% test
 Real resumes      (75,000)  →  70% train  |  15% val  |  15% test
                                                         ▲
@@ -413,7 +409,7 @@ The `notebooks/colab_train_file.ipynb` notebook provides the same workflow in an
 ### Security Measures
 
 | Measure | Implementation |
-|---|---|
+| --- | --- |
 | **CSRF Protection** | Django `CsrfViewMiddleware` + `CSRF_COOKIE_SAMESITE='None'` for HF iframe |
 | **File Type Validation** | Extension check (`.pdf` / `.txt`) + PDF magic bytes (`%PDF-`) |
 | **File Size Limit** | 5 MB max (`FILE_UPLOAD_MAX_MEMORY_SIZE`) |
@@ -426,9 +422,11 @@ The `notebooks/colab_train_file.ipynb` notebook provides the same workflow in an
 ### Django Form — 25 Job Role Choices
 
 The `ResumeAnalysisForm` (`analyzer/forms.py`) accepts:
+
 - **resume_file** — `FileField` (PDF or TXT, max 5 MB)
 - **job_role** — `ChoiceField` with all 25 IT role options
 - **job_description** — `CharField` (textarea, paste full JD text)
+
 
 ---
 
@@ -458,7 +456,7 @@ git push hf main
 
 **Environment variables to set in HF Spaces settings:**
 
-```
+```text
 DJANGO_SECRET_KEY=<generate a new key>
 DJANGO_DEBUG=False
 DJANGO_ALLOWED_HOSTS=<your-space-name>.hf.space
@@ -467,7 +465,7 @@ DJANGO_ALLOWED_HOSTS=<your-space-name>.hf.space
 ### Required Environment Variables
 
 | Variable | Description | Required |
-|---|---|---|
+| --- | --- | --- |
 | `DJANGO_SECRET_KEY` | Django secret key (generate fresh per deployment) | ✅ |
 | `DJANGO_DEBUG` | `True` for local dev, `False` for production | ✅ |
 | `DJANGO_ALLOWED_HOSTS` | Comma-separated list of allowed hostnames | ✅ |
@@ -522,7 +520,7 @@ for r in results:
 
 ## 📦 Dependencies
 
-```
+```text
 torch>=2.0.0          # Deep learning framework
 torchvision>=0.15.0   # (required by torch)
 transformers>=4.30.0  # BERT tokenizer + model
