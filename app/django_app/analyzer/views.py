@@ -105,7 +105,7 @@ def analyze(request):
     tmp_path = None
     
     try:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        with tempfile.NamedTemporaryFile(mode="wb", delete=False, suffix=suffix) as tmp:
             for chunk in uploaded_file.chunks():
                 tmp.write(chunk)
             tmp_path = tmp.name

@@ -358,7 +358,6 @@ The project includes two fully-featured synthetic resume generators:
 - 2–4 realistic project descriptions per resume
 - 1–3 certifications per resume
 
-
 **`scripts/generate_90k_resumes.py`** — Scales to 90,000+ resumes across all 25 IT job roles, using extended role configs from `scripts/role_configs.py`.
 
 ### Dataset Split Strategy
@@ -426,7 +425,6 @@ The `ResumeAnalysisForm` (`analyzer/forms.py`) accepts:
 - **resume_file** — `FileField` (PDF or TXT, max 5 MB)
 - **job_role** — `ChoiceField` with all 25 IT role options
 - **job_description** — `CharField` (textarea, paste full JD text)
-
 
 ---
 
