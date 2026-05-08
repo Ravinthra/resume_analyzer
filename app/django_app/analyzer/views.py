@@ -12,7 +12,7 @@ from pathlib import Path
 
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_exempt
 
 from .forms import ResumeAnalysisForm
 
@@ -44,7 +44,7 @@ def home(request):
     return render(request, "analyzer/home.html", {"form": form})
 
 
-@csrf_protect
+@csrf_exempt
 def analyze(request):
     """
     Handle resume upload + JD and return analysis results.
