@@ -7,6 +7,9 @@
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![BERT](https://img.shields.io/badge/BERT-Fine--Tuned-FF6F00?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative&logoColor=white)
+[![Live Demo](https://img.shields.io/badge/🤗%20Live%20Demo-Hugging%20Face%20Spaces-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/spaces/Ravinthra9922/resume-analyzer)
+
+🌐 **Live Demo:** [huggingface.co/spaces/Ravinthra9922/resume-analyzer](https://huggingface.co/spaces/Ravinthra9922/resume-analyzer)
 
 A production-grade, deep learning–powered system that analyzes resumes against job descriptions using fine-tuned **BERT**. It goes far beyond keyword matching — computing deep semantic similarity via BERT embeddings, predicting a candidate's job role, performing skill gap analysis, and generating actionable career improvement suggestions.
 
