@@ -92,6 +92,7 @@
             z-index: 100;
             padding: 16px 0;
             background: rgba(6,8,15,0.8);
+            -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
         }
@@ -531,6 +532,9 @@
         /* Loading */
         .loading { display: none; text-align: center; padding: 24px; }
         .loading.active { display: block; }
+        .loading-card { margin-top: 20px; }
+        .loading-title { color: var(--accent-blue); font-weight: 600; }
+        .loading-subtitle { color: var(--text-muted); font-size: 0.84rem; margin-top: 8px; }
 
         .spinner {
             width: 44px; height: 44px;
@@ -544,6 +548,8 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Error */
+        .form-card-error { margin-bottom: 20px; }
+
         .error-msg {
             background: rgba(248,81,73,0.1);
             border: 1px solid rgba(248,81,73,0.2);
@@ -769,7 +775,7 @@
             </div>
 
             {% if error %}
-            <div class="form-card" style="margin-bottom: 20px; max-width: 720px; margin-left: auto; margin-right: auto;">
+            <div class="form-card form-card-error">
                 <div class="error-msg">{{ error }}</div>
             </div>
             {% endif %}
@@ -821,10 +827,10 @@
 
                 <!-- Loading -->
                 <div class="loading" id="loading">
-                    <div class="form-card" style="margin-top: 20px;">
+                    <div class="form-card loading-card">
                         <div class="spinner"></div>
-                        <p style="color: var(--accent-blue); font-weight: 600;">Analyzing with BERT...</p>
-                        <p style="color: var(--text-muted); font-size: 0.84rem; margin-top: 8px;">
+                        <p class="loading-title">Analyzing with BERT...</p>
+                        <p class="loading-subtitle">
                             Computing embeddings and skill analysis (15-30 seconds)
                         </p>
                     </div>
@@ -839,7 +845,7 @@
             <p>
                 AI Resume Analyzer &mdash;
                 Built with BERT, PyTorch &amp; Django &middot;
-                <a href="https://github.com/Ravinthra/resume_analyzer" target="_blank">GitHub</a>
+                <a href="https://github.com/Ravinthra/resume_analyzer" target="_blank" rel="noopener noreferrer">GitHub</a>
             </p>
         </div>
     </footer>
